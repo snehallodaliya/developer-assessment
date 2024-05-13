@@ -8,6 +8,9 @@ using Microsoft.OpenApi.Models;
 
 namespace TodoList.Api
 {
+    using TodoList.Api.Repository;
+    using TodoList.Api.Service;
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -38,6 +41,10 @@ namespace TodoList.Api
             });
 
             services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoItemsDB"));
+            
+            // add services
+            services.AddScoped<IToDoItemsService, ToDoItemsService>();
+            services.AddScoped<IToDoItemsRepository, ToDoItemsRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

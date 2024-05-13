@@ -1,28 +1,43 @@
 import './App.css'
 import { Image, Alert, Button, Container, Row, Col, Form, Table, Stack } from 'react-bootstrap'
-import React, { useState, useEffect } from 'react'
-
-const axios = require('axios')
+import React, { useState, useEffect, useCallback } from 'react'
+import axios from 'axios';
 
 const App = () => {
   const [description, setDescription] = useState('')
   const [items, setItems] = useState([])
 
+  var getItemsFromApi = useCallback(() => axios({
+      url: 'https://localhost:5001/api/TodoItems',
+      method: 'GET',
+      responseType: 'json',
+      headers:{"Accept":"application/json","Content-Type": "application/json"}
+    })
+      .then((response) => {
+        console.log(response.data);
+        setItems(response.data)
+      })
+      .catch((error) => {
+        alert(`Axios error: ${error.response.data}`);
+      }), []);
+  
   useEffect(() => {
-    // todo
-  }, [])
+    getItemsFromApi();
+  }, [getItemsFromApi])
+
+
 
   const renderAddTodoItemContent = () => {
     return (
       <Container>
         <h1>Add Item</h1>
-        <Form.Group as={Row} className="mb-3" controlId="formAddTodoItem">
+        <Form.Group as={Row} className="mb-3" controlId="formAddTodoItemInput">
           <Form.Label column sm="2">
             Description
           </Form.Label>
           <Col md="6">
             <Form.Control
-              type="text"
+              type="input"
               placeholder="Enter description..."
               value={description}
               onChange={handleDescriptionChange}
@@ -31,7 +46,7 @@ const App = () => {
         </Form.Group>
         <Form.Group as={Row} className="mb-3 offset-md-2" controlId="formAddTodoItem">
           <Stack direction="horizontal" gap={2}>
-            <Button variant="primary" onClick={() => handleAdd()}>
+            <Button variant="primary" onClick={() => handleAdd(description)}>
               Add Item
             </Button>
             <Button variant="secondary" onClick={() => handleClear()}>
@@ -80,22 +95,33 @@ const App = () => {
   }
 
   const handleDescriptionChange = (event) => {
-    // todo
+    if (event.target.value) {
+      setDescription(event.target.value);
+    }
   }
 
   async function getItems() {
     try {
-      alert('todo')
+    getItemsFromApi();
     } catch (error) {
       console.error(error)
     }
   }
 
-  async function handleAdd() {
+  async function handleAdd(description) {
     try {
-      alert('todo')
+      axios({
+        url: 'https://localhost:5001/api/TodoItems',
+        method: 'POST',
+        responseType: 'json',
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        data :  description 
+    })
+      .catch((error) => {
+        alert(`Axios error: ${error.response.data}`);
+      })
     } catch (error) {
-      console.error(error)
+        alert(`Error: ${error}`);
     }
   }
 
@@ -105,10 +131,21 @@ const App = () => {
 
   async function handleMarkAsComplete(item) {
     try {
-      alert('todo')
+      console.log(item);
+      axios({
+        url: `https://localhost:5001/api/TodoItems/${item.id}`,
+        method: 'PUT',
+        responseType: 'json',
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        data: item
+       
+    })
+      .catch((error) => {
+        alert(`Axios error: ${error.response.data}`);
+      })
     } catch (error) {
-      console.error(error)
-    }
+        alert(`Error: ${error}`);
+    }    
   }
 
   return (
